@@ -8,17 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
-<<<<<<< HEAD
-"dependencies": {
-  "next": "14.x.x", 
-  "react": "18.x.x",
-  "react-dom": "18.x.x",
-  "tailwindcss": "^3.4.0",
-  "autoprefixer": "^10.4.0",
-  "postcss": "^8.4.0"
-}
-,
-=======
+
   "dependencies": {
     "html-to-image": "^1.11.13",
     "html2canvas": "1.4.1",
@@ -28,7 +18,6 @@
     "react-dom": "18.2.0",
     "tailwindcss": "^3.4.8"
   },
->>>>>>> 0b55d034 (version 0.1)
   "devDependencies": {
     "autoprefixer": "10.4.14",
     "eslint": "8.48.0",
