@@ -1,39 +1,57 @@
 # resume.ly
-# Resume Builder
 
-A web app to help people build professional resumes quickly. This repository contains a starter Next.js + Tailwind CSS project that provides a form-based editor, multiple resume templates, and PDF export.
+Simple Next.js + Tailwind starter for a resume builder app.
 
-## Goals (v1)
-- Simple form UI for entering resume data (contact, summary, experience, education, skills)
-- Multiple visual templates (downloadable as PDF)
-- Export to PDF (client-side or server-side rendering)
-- Sample resume and templates to get started
+Getting started
 
-## Tech stack (default)
-- Next.js (React)
-- Tailwind CSS
-- html-to-pdf (or Puppeteer for server-side rendering)
-- Optionally: NextAuth / JWT for user accounts
-- Deployed to Vercel (recommended for Next.js)
+1. Install dependencies
 
-## Getting started (local)
-1. Clone the repo
-2. Install dependencies
-   - npm install
-3. Run dev server
-   - npm run dev
-4. Open http://localhost:3000
+```bash
+npm install
+```
 
-## Project structure (planned)
-- /pages — Next.js pages (editor, templates, preview)
-- /components — form components, template renderers
-- /templates — HTML/CSS templates for resumes
-- /public — static assets
-- /lib — export utilities (PDF generation)
-- /examples — sample resume JSON
+2. Run dev server
 
-## Contributing
-Contributions welcome. Open issues for feature requests and bugs.
+```bash
+npm run dev
+```
+
+Open http://localhost:3000
+
+What's included
+
+- Basic editor UI at `/pages/index.js`
+- Preview component in `/components/TemplatePreview.js`
+- Client-side PDF export using `html2canvas` + `jspdf` in `/components/ExportPDFButton.js`
+- Tailwind CSS configuration and global styles
+
+Try it
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+2. Run development server
+
+```bash
+npm run dev
+```
+
+3. Open http://localhost:3000 and try editing the sample resume. Click "Download PDF" to export.
+
+Deployment
+
+This project is ready to be deployed on Vercel. Push to a GitHub repo and import the project in Vercel — it will detect Next.js and build automatically.
+
+Next steps
+
+- Add structured form fields for lists (experience/education) with add/remove
+- Add multiple templates in `/templates` and template selector
+- Server-side PDF rendering with Puppeteer for higher fidelity
+- Authentication (NextAuth) and user resume saving
 
 ## License
+
 MIT (change as needed)
