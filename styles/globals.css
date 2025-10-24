@@ -2,4 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-body { @apply bg-white text-gray-900 }
+:root{
+	--bg: #ffffff;
+	--muted: #6b7280;
+	--card: #ffffff;
+}
+
+body {
+	@apply bg-white text-gray-900 transition-colors duration-200;
+	background-color: var(--bg);
+}
+
+.dark body {
+	--bg: #0f172a; /* slate-900 */
+	--muted: #9ca3af;
+	--card: #0b1220;
+	background-color: #0f172a;
+	color: #e6eef8;
+}
+
+/* make preview more compact on small screens */
+@media (max-width: 640px) {
+	.preview-padding-sm {
+		padding: 1rem;
+	}
+}
+
+.sr-only {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	padding: 0 !important;
+	margin: -1px !important;
+	overflow: hidden !important;
+	clip: rect(0, 0, 0, 0) !important;
+	white-space: nowrap !important;
+	border: 0 !important;
+}

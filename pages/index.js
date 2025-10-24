@@ -49,7 +49,23 @@ export default function Editor() {
     }
   });
   const [templateId, setTemplateId] = useState("classic");
+  const [dark, setDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem("resume:dark");
+      if (saved !== null) return saved === "true";
+    } catch (e) {}
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  const [errors, setErrors] = useState({ contact: {} });
   const previewRef = useRef(null);
+  const sections = [
+    { id: "contact", label: "Contact" },
+    { id: "summary", label: "Summary" },
+    { id: "experience", label: "Experience" },
+    { id: "education", label: "Education" },
+    { id: "skills", label: "Skills" },
+  ];
+  const [activeSection, setActiveSection] = useState("contact");
 
   useEffect(() => {
     const id = setTimeout(
@@ -59,7 +75,55 @@ export default function Editor() {
     return () => clearTimeout(id);
   }, [data]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem("resume:dark", dark ? "true" : "false");
+    } catch (e) {}
+    document.documentElement.classList.toggle("dark", !!dark);
+  }, [dark]);
+
   const Template = TEMPLATES.find((t) => t.id === templateId).Component;
+
+  function validateEmail(value) {
+    if (!value) return "Email is required";
+    // simple email regex
+    const re = /^\S+@\S+\.\S+$/;
+    return re.test(value) ? "" : "Enter a valid email address";
+  }
+
+  function validateName(value) {
+    return value && value.trim().length > 1 ? "" : "Name is required";
+  }
+
+  function handleContactChange(field, value) {
+    setData((d) => ({ ...d, contact: { ...d.contact, [field]: value } }));
+    setErrors((prev) => ({
+      ...prev,
+      contact: {
+        ...prev.contact,
+        [field]: field === "email" ? validateEmail(value) : field === "name" ? validateName(value) : "",
+      },
+    }));
+  }
+
+  function computeProgress() {
+    let total = 5;
+    let done = 0;
+    if (data.contact?.name && !validateName(data.contact?.name)) done++;
+    if (data.contact?.email && !validateEmail(data.contact?.email)) done++;
+    if (data.summary && data.summary.trim().length > 10) done++;
+    if ((data.experience || []).length > 0) done++;
+    if (((data.skills || []).length || 0) > 0) done++;
+    return Math.round((done / total) * 100);
+  }
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      setActiveSection(id);
+    }
+  }
 
   // --- Experience Handlers ---
   function addExperience() {
@@ -112,15 +176,31 @@ export default function Editor() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-slate-900 dark:text-slate-100">
       <div className="max-w-7xl mx-auto">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold">resume.ly</h1>
+        <header className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-semibold">resume.ly</h1>
+            <nav className="hidden sm:flex items-center gap-2" aria-label="Sections">
+              {sections.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => scrollToSection(s.id)}
+                  className={`text-sm px-2 py-1 rounded ${activeSection === s.id ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-slate-300'}`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
           <div className="flex items-center gap-3">
+            <label className="sr-only">Select template</label>
             <select
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
-              className="border rounded px-3 py-2"
+              className="border rounded px-3 py-2 bg-white dark:bg-slate-800"
+              aria-label="Choose template"
             >
               {TEMPLATES.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -128,6 +208,7 @@ export default function Editor() {
                 </option>
               ))}
             </select>
+
             <button
               onClick={() =>
                 exportElementToPdf(
@@ -139,92 +220,106 @@ export default function Editor() {
             >
               Download PDF
             </button>
+
             <button
               onClick={() => {
                 localStorage.removeItem("resume:data");
                 setData(sample);
               }}
-              className="px-3 py-2 border rounded"
+              className="px-3 py-2 border rounded bg-white dark:bg-slate-800"
             >
               Reset
+            </button>
+
+            <button
+              onClick={() => setDark((d) => !d)}
+              aria-pressed={!!dark}
+              className="px-3 py-2 border rounded bg-white dark:bg-slate-800"
+              title="Toggle dark mode"
+            >
+              {dark ? '☀️' : '🌙'}
             </button>
           </div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <aside className="md:col-span-1 space-y-4">
-            <section className="bg-white p-4 rounded shadow-sm">
+            <div className="w-full bg-white dark:bg-slate-800 rounded overflow-hidden">
+              <div className="px-4 py-3 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium">Progress</h3>
+                  <p className="text-xs text-gray-500 dark:text-slate-300">{computeProgress()}% complete</p>
+                </div>
+                <div>
+                  <button onClick={() => { setData(sample); setErrors({contact:{}}); }} className="text-xs text-gray-500">Load sample</button>
+                </div>
+              </div>
+              <div className="h-2 bg-gray-200 dark:bg-slate-700">
+                <div
+                  className="h-2 bg-blue-600"
+                  style={{ width: `${computeProgress()}%` }}
+                  aria-hidden
+                />
+              </div>
+            </div>
+
+            <section id="contact" className="bg-white dark:bg-slate-800 p-4 rounded shadow-sm">
               <h2 className="font-semibold mb-2">Contact</h2>
               <label className="block text-sm">
                 Name
                 <input
-                  className="mt-1 block w-full border rounded p-2"
+                  aria-required
+                  aria-invalid={!!errors.contact?.name}
+                  className={`mt-1 block w-full rounded p-2 ${errors.contact?.name ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                   value={data.contact?.name || ""}
-                  onChange={(e) =>
-                    setData((d) => ({
-                      ...d,
-                      contact: { ...d.contact, name: e.target.value },
-                    }))
-                  }
+                  onChange={(e) => handleContactChange('name', e.target.value)}
                 />
+                {errors.contact?.name && <p className="text-red-600 text-sm mt-1">{errors.contact.name}</p>}
               </label>
               <label className="block text-sm mt-2">
                 Title
                 <input
-                  className="mt-1 block w-full border rounded p-2"
+                  className="mt-1 block w-full border rounded p-2 bg-white dark:bg-slate-700"
                   value={data.contact?.title || ""}
-                  onChange={(e) =>
-                    setData((d) => ({
-                      ...d,
-                      contact: { ...d.contact, title: e.target.value },
-                    }))
-                  }
+                  onChange={(e) => handleContactChange('title', e.target.value)}
                 />
               </label>
               <label className="block text-sm mt-2">
                 Email
                 <input
-                  className="mt-1 block w-full border rounded p-2"
+                  aria-required
+                  aria-invalid={!!errors.contact?.email}
+                  className={`mt-1 block w-full rounded p-2 ${errors.contact?.email ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                   value={data.contact?.email || ""}
-                  onChange={(e) =>
-                    setData((d) => ({
-                      ...d,
-                      contact: { ...d.contact, email: e.target.value },
-                    }))
-                  }
+                  onChange={(e) => handleContactChange('email', e.target.value)}
+                  onBlur={(e) => setErrors((p) => ({ ...p, contact: { ...p.contact, email: validateEmail(e.target.value) } }))}
                 />
+                {errors.contact?.email && <p className="text-red-600 text-sm mt-1">{errors.contact.email}</p>}
               </label>
               <label className="block text-sm mt-2">
                 Phone
                 <input
-                  className="mt-1 block w-full border rounded p-2"
+                  className="mt-1 block w-full border rounded p-2 bg-white dark:bg-slate-700"
                   value={data.contact?.phone || ""}
-                  onChange={(e) =>
-                    setData((d) => ({
-                      ...d,
-                      contact: { ...d.contact, phone: e.target.value },
-                    }))
-                  }
+                  onChange={(e) => handleContactChange('phone', e.target.value)}
                 />
               </label>
             </section>
 
-            <section className="bg-white p-4 rounded shadow-sm">
+            <section id="summary" className="bg-white dark:bg-slate-800 p-4 rounded shadow-sm">
               <h2 className="font-semibold mb-2">Summary</h2>
               <textarea
-                className="w-full border rounded p-2"
+                className="w-full border rounded p-2 bg-white dark:bg-slate-700"
                 rows="5"
                 value={data.summary || ""}
-                onChange={(e) =>
-                  setData((d) => ({ ...d, summary: e.target.value }))
-                }
+                onChange={(e) => setData((d) => ({ ...d, summary: e.target.value }))}
               />
             </section>
 
-            <section className="bg-white p-4 rounded shadow-sm">
+            <section id="experience" className="bg-white dark:bg-slate-800 p-4 rounded shadow-sm">
               <h2 className="font-semibold mb-2">Experience</h2>
               {(data.experience || []).map((exp, i) => (
-                <div key={i} className="border rounded p-2 mb-2">
+                <div key={i} className="border rounded p-2 mb-2 bg-white dark:bg-slate-700">
                   <input
                     placeholder="Role"
                     className="w-full border p-1 rounded"
@@ -273,17 +368,16 @@ export default function Editor() {
               ))}
               <button
                 onClick={addExperience}
-                className="mt-2 w-full border rounded px-3 py-2"
+                className="mt-2 w-full border rounded px-3 py-2 bg-white dark:bg-slate-700"
               >
                 Add Experience
               </button>
             </section>
 
-            {/* --- NEW: Education Section --- */}
-            <section className="bg-white p-4 rounded shadow-sm">
+            <section id="education" className="bg-white dark:bg-slate-800 p-4 rounded shadow-sm">
               <h2 className="font-semibold mb-2">Education</h2>
               {(data.education || []).map((edu, i) => (
-                <div key={i} className="border rounded p-2 mb-2">
+                <div key={i} className="border rounded p-2 mb-2 bg-white dark:bg-slate-700">
                   <input
                     placeholder="School"
                     className="w-full border p-1 rounded"
@@ -314,23 +408,22 @@ export default function Editor() {
               ))}
               <button
                 onClick={addEducation}
-                className="mt-2 w-full border rounded px-3 py-2"
+                className="mt-2 w-full border rounded px-3 py-2 bg-white dark:bg-slate-700"
               >
                 Add Education
               </button>
             </section>
 
-            {/* --- NEW: Skills Section --- */}
-            <section className="bg-white p-4 rounded shadow-sm">
+            <section id="skills" className="bg-white dark:bg-slate-800 p-4 rounded shadow-sm">
               <h2 className="font-semibold mb-2">Skills</h2>
               <textarea
                 placeholder="Figma, User Research, Prototyping"
-                className="w-full border rounded p-2"
+                className="w-full border rounded p-2 bg-white dark:bg-slate-700"
                 rows="3"
                 value={(data.skills || []).join(", ")}
                 onChange={handleSkillsChange}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-gray-500 dark:text-slate-300 mt-1">
                 Enter skills separated by a comma.
               </p>
             </section>
@@ -338,7 +431,7 @@ export default function Editor() {
 
           <main className="md:col-span-2">
             <div
-              className="bg-white p-6 rounded shadow"
+              className="bg-white dark:bg-slate-800 p-6 rounded shadow preview-padding-sm"
               ref={previewRef}
               role="region"
               aria-label="Resume preview"
