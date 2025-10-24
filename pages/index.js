@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import ClassicTemplate from "../templates/ClassicTemplate";
 import ModernTemplate from "../templates/ModernTemplate";
 import { exportElementToPdf } from "../lib/exportPdf";
-
+import { exportAsWord } from "../lib/exportWord";
 const TEMPLATES = [
   { id: "classic", name: "Classic", Component: ClassicTemplate },
   { id: "modern", name: "Modern", Component: ModernTemplate },
@@ -67,7 +67,7 @@ export default function Editor() {
 
   const Template = TEMPLATES.find((t) => t.id === templateId).Component;
 
-  // ---- IMPORT JSON FILE ---- 
+  // ---- IMPORT JSON FILE ----
   function handleFileImport(e) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -85,7 +85,7 @@ export default function Editor() {
     reader.readAsText(file);
     e.target.value = "";
   }
-  
+
   // --- Experience Handlers ---
   function addExperience() {
     setData((d) => ({
@@ -206,6 +206,13 @@ export default function Editor() {
             >
               Download PDF
             </button>
+            <button
+              onClick={()=>exportAsWord(data,templateId)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Export Word
+            </button>
+
             <button
               onClick={() => {
                 localStorage.removeItem("resume:data");
