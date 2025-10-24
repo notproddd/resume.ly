@@ -1,0 +1,54 @@
+{
+  "contact": {
+    "name": "Aniket Kumar",
+    "email": "Ak.aniket@example.com",
+    "phone": "+1 (555) 123-4567",
+    "title": "SDE"
+  },
+  "summary": "Write a compelling professional summary here. Highlight your key strengths, years of experience, and what makes you unique. Keep it concise but impactful - aim for 2-3 sentences that capture your professional essence.",
+  "experience": [
+    {
+      "role": "Job Title",
+      "company": "Company Name",
+      "from": "2020",
+      "to": "Present",
+      "details": "Describe your key responsibilities and achievements in this role. Focus on measurable impacts and specific contributions."
+    },
+    {
+      "role": "Previous Job Title",
+      "company": "Previous Company Name",
+      "from": "2018",
+      "to": "2020",
+      "details": "Describe what you accomplished in this position. Use action verbs and quantify results when possible."
+    },
+    {
+      "role": "Earlier Position",
+      "company": "Another Company",
+      "from": "2016",
+      "to": "2018",
+      "details": "Additional work experience details go here."
+    }
+  ],
+  "education": [
+    {
+      "school": "University Name",
+      "degree": "Bachelor of Science in Computer Science",
+      "year": "2016"
+    },
+    {
+      "school": "Another Institution",
+      "degree": "Master of Business Administration",
+      "year": "2018"
+    }
+  ],
+  "skills": [
+    "JavaScript",
+    "React",
+    "Node.js",
+    "Python",
+    "Project Management",
+    "Data Analysis",
+    "Communication",
+    "Leadership"
+  ]
+}

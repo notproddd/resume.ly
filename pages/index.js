@@ -43,7 +43,9 @@ export default function Editor() {
   const [data, setData] = useState(sample);
   const [templateId, setTemplateId] = useState("classic");
   const previewRef = useRef(null);
-  // this fixes
+  const [showImportMenu, setShowImportMenu] = useState(false);
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem("resume:data");
@@ -54,6 +56,7 @@ export default function Editor() {
       console.error("Failed to loead resume data:", e);
     }
   }, []);
+
   useEffect(() => {
     const id = setTimeout(
       () => localStorage.setItem("resume:data", JSON.stringify(data)),
@@ -64,6 +67,25 @@ export default function Editor() {
 
   const Template = TEMPLATES.find((t) => t.id === templateId).Component;
 
+  // ---- IMPORT JSON FILE ---- 
+  function handleFileImport(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        setData(imported);
+        alert("Resume imported successfully!");
+      } catch (e) {
+        alert("Failed to import: Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }
+  
   // --- Experience Handlers ---
   function addExperience() {
     setData((d) => ({
@@ -131,6 +153,48 @@ export default function Editor() {
                 </option>
               ))}
             </select>
+
+            {/* Import Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowImportMenu(!showImportMenu)}
+                className="flex items-center gap-2 px-4 py-2 border rounded hover:bg-gray-100"
+              >
+                Import
+              </button>
+              {showImportMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
+                  <button
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                      setShowImportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    Upload JSON
+                  </button>
+                  <button
+                    onClick={() => {
+                      alert(
+                        "LinkedIn import coming soon! For now, use JSON export from LinkedIn profile exporters."
+                      );
+                      setShowImportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    From LinkedIn
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleFileImport}
+              className="hidden"
+            />
             <button
               onClick={() =>
                 exportElementToPdf(
