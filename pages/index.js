@@ -40,17 +40,20 @@ const sample = {
 };
 
 export default function Editor() {
-  const [data, setData] = useState(() => {
-    try {
-      const saved = localStorage.getItem("resume:data");
-      return saved ? JSON.parse(saved) : sample;
-    } catch (e) {
-      return sample;
-    }
-  });
+  const [data, setData] = useState(sample);
   const [templateId, setTemplateId] = useState("classic");
   const previewRef = useRef(null);
-
+  // this fixes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("resume:data");
+      if (saved) {
+        setData(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Failed to loead resume data:", e);
+    }
+  }, []);
   useEffect(() => {
     const id = setTimeout(
       () => localStorage.setItem("resume:data", JSON.stringify(data)),
