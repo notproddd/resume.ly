@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import ClassicTemplate from "../templates/ClassicTemplate";
 import ModernTemplate from "../templates/ModernTemplate";
+import MinimalTemplate from "../templates/MinimalTemplate";
+import CreativeTemplate from "../templates/CreativeTemplate";
+import CustomizationPanel from "../components/CustomizationPanel";
+import TemplateSelector from "../components/TemplateSelector";
 import { exportElementToPdf } from "../lib/exportPdf";
 
 const TEMPLATES = [
   { id: "classic", name: "Classic", Component: ClassicTemplate },
   { id: "modern", name: "Modern", Component: ModernTemplate },
+  { id: "minimal", name: "Minimal", Component: MinimalTemplate },
+  { id: "creative", name: "Creative", Component: CreativeTemplate },
 ];
 
 const sample = {
@@ -40,22 +46,16 @@ const sample = {
 };
 
 export default function Editor() {
-  const [data, setData] = useState(() => {
-    try {
-      const saved = localStorage.getItem("resume:data");
-      return saved ? JSON.parse(saved) : sample;
-    } catch (e) {
-      return sample;
-    }
-  });
+  // Use safe defaults on initial render (avoid accessing window/localStorage
+  // during server-side rendering). Load persisted values on mount.
+  const [data, setData] = useState(sample);
   const [templateId, setTemplateId] = useState("classic");
-  const [dark, setDark] = useState(() => {
-    try {
-      const saved = localStorage.getItem("resume:dark");
-      if (saved !== null) return saved === "true";
-    } catch (e) {}
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [customization, setCustomization] = useState({
+    fontSize: 'medium',
+    primaryColor: '#1f2937',
+    sectionOrder: []
   });
+  const [dark, setDark] = useState(false);
   const [errors, setErrors] = useState({ contact: {} });
   const previewRef = useRef(null);
   const sections = [
@@ -68,19 +68,62 @@ export default function Editor() {
   const [activeSection, setActiveSection] = useState("contact");
 
   useEffect(() => {
-    const id = setTimeout(
-      () => localStorage.setItem("resume:data", JSON.stringify(data)),
-      300
-    );
-    return () => clearTimeout(id);
+    const id = setTimeout(() => {
+      try {
+        localStorage.setItem("resume:data", JSON.stringify(data))
+      } catch (e) {
+        // ignore
+      }
+    }, 300)
+    return () => clearTimeout(id)
   }, [data]);
+
+  // Load persisted state on mount (client only)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("resume:data");
+      if (saved) setData(JSON.parse(saved));
+    } catch (e) {}
+
+    try {
+      const savedTemplate = localStorage.getItem("resume:templateId");
+      if (savedTemplate) setTemplateId(savedTemplate);
+    } catch (e) {}
+
+    try {
+      const savedCustomization = localStorage.getItem("resume:customization");
+      if (savedCustomization) setCustomization(JSON.parse(savedCustomization));
+    } catch (e) {}
+
+    try {
+      const savedDark = localStorage.getItem("resume:dark");
+      if (savedDark !== null) setDark(savedDark === "true");
+      else if (window.matchMedia) setDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } catch (e) {}
+  }, [])
 
   useEffect(() => {
     try {
       localStorage.setItem("resume:dark", dark ? "true" : "false");
     } catch (e) {}
-    document.documentElement.classList.toggle("dark", !!dark);
+
+    // Ensure class toggle happens in the browser
+    if (typeof document !== 'undefined') {
+      document.documentElement.classList.toggle("dark", !!dark);
+    }
   }, [dark]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("resume:templateId", templateId);
+    } catch (e) {}
+  }, [templateId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("resume:customization", JSON.stringify(customization));
+    } catch (e) {}
+  }, [customization]);
 
   const Template = TEMPLATES.find((t) => t.id === templateId).Component;
 
@@ -195,20 +238,6 @@ export default function Editor() {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="sr-only">Select template</label>
-            <select
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value)}
-              className="border rounded px-3 py-2 bg-white dark:bg-slate-800"
-              aria-label="Choose template"
-            >
-              {TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-
             <button
               onClick={() =>
                 exportElementToPdf(
@@ -244,6 +273,20 @@ export default function Editor() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <aside className="md:col-span-1 space-y-4">
+            {/* Template Selector */}
+            <TemplateSelector 
+              templates={TEMPLATES}
+              selectedId={templateId}
+              onSelect={setTemplateId}
+              customization={customization}
+            />
+
+            {/* Customization Panel */}
+            <CustomizationPanel 
+              customization={customization}
+              onChange={setCustomization}
+            />
+
             <div className="w-full bg-white dark:bg-slate-800 rounded overflow-hidden">
               <div className="px-4 py-3 flex items-center justify-between">
                 <div>
@@ -436,7 +479,7 @@ export default function Editor() {
               role="region"
               aria-label="Resume preview"
             >
-              <Template data={data} />
+              <Template data={data} customization={customization} />
             </div>
           </main>
         </div>
