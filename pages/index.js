@@ -252,8 +252,15 @@ export default function Editor() {
 
             <button
               onClick={() => {
-                localStorage.removeItem("resume:data");
+                // Clear persisted data and template selection, then reset to sample
+                try {
+                  localStorage.removeItem("resume:data");
+                  localStorage.removeItem("resume:templateId");
+                  localStorage.removeItem("resume:customization");
+                } catch (e) {}
                 setData(sample);
+                setCustomization({ fontSize: 'medium', primaryColor: '#1f2937', sectionOrder: [] });
+                setTemplateId('classic');
               }}
               className="px-3 py-2 border rounded bg-white dark:bg-slate-800"
             >
