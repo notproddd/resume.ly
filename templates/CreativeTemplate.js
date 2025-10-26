@@ -17,7 +17,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-slate-900 dark:text-white">About Me</span>
+            <span className="text-black dark:text-white">About Me</span>
         </div>
         <div 
           className="p-4 rounded-lg" 
@@ -28,7 +28,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
             borderLeft: `4px solid ${primaryColor}`
           }}
         >
-          <div className="text-slate-900 dark:text-slate-100">{data.summary}</div>
+          {data.summary}
         </div>
       </div>
     ),
@@ -39,7 +39,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-slate-900 dark:text-white">Experience</span>
+            <span className="text-black dark:text-white">Experience</span>
         </div>
         <div className="space-y-4">
           {(data.experience || []).map((e, i) => (
@@ -57,7 +57,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
               </div>
               <div style={{ fontSize: sizes.base, fontWeight: 600, opacity: 0.9 }}>{e.company}</div>
               <div className="text-xs mb-1" style={{ opacity: 0.85 }}>{e.from} – {e.to}</div>
-              <div style={{ fontSize: sizes.base, lineHeight: '1.6', opacity: 0.95 }} className="text-slate-800 dark:text-slate-200">{e.details}</div>
+              <div style={{ fontSize: sizes.base, lineHeight: '1.6', opacity: 0.95 }}>{e.details}</div>
             </div>
           ))}
         </div>
@@ -70,7 +70,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-slate-900 dark:text-white">Education</span>
+            <span className="text-black dark:text-white">Education</span>
         </div>
         <div className="space-y-3">
           {(data.education || []).map((ed, i) => (
@@ -84,8 +84,8 @@ export default function CreativeTemplate({ data, customization = {} }) {
               }}
             >
               <div className="font-bold" style={{ color: primaryColor }}>{ed.degree}</div>
-              <div style={{ opacity: 0.95 }} className="text-slate-800 dark:text-slate-200">{ed.school}</div>
-              <div style={{ opacity: 0.85, fontSize: '0.75rem' }} className="text-slate-700 dark:text-slate-300">{ed.year}</div>
+              <div style={{ opacity: 0.95 }}>{ed.school}</div>
+              <div style={{ opacity: 0.85, fontSize: '0.75rem' }}>{ed.year}</div>
             </div>
           ))}
         </div>
@@ -98,7 +98,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-slate-900 dark:text-white">Skills</span>
+            <span className="text-black dark:text-white">Skills</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {(data.skills || []).map((skill, i) => (
@@ -124,7 +124,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
     : Object.values(sections);
 
   return (
-    <div style={{ fontFamily: 'Inter, system-ui, -apple-system' }} className="text-slate-900 dark:text-slate-100">
+    <div style={{ fontFamily: 'Inter, system-ui, -apple-system', color: '#fff' }}>
       <div 
         className="mb-6 p-6 rounded-lg"
         style={{ 
@@ -132,8 +132,8 @@ export default function CreativeTemplate({ data, customization = {} }) {
         }}
       >
         <div 
-          className="font-bold mb-1 text-slate-900 dark:text-slate-100" 
-          style={{ fontSize: sizes.heading }}
+          className="font-bold mb-1" 
+          style={{ fontSize: sizes.heading, color: '#000' }}
         >
           {data.contact?.name}
         </div>
