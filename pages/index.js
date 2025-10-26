@@ -313,7 +313,7 @@ export default function Editor() {
                 <input
                   aria-required
                   aria-invalid={!!errors.contact?.name}
-                  className={`mt-1 block w-full rounded p-2 ${errors.contact?.name ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
+                  className={`mt-1 dark:bg-slate-800 border block w-full rounded p-2 ${errors.contact?.name ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                   value={data.contact?.name || ""}
                   onChange={(e) => handleContactChange('name', e.target.value)}
                 />
@@ -332,7 +332,7 @@ export default function Editor() {
                 <input
                   aria-required
                   aria-invalid={!!errors.contact?.email}
-                  className={`mt-1 block w-full rounded p-2 ${errors.contact?.email ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
+                  className={`mt-1 dark:bg-slate-800 border block w-full rounded p-2 ${errors.contact?.email ? 'border-red-500' : 'border-gray-200 focus:border-blue-500'}`}
                   value={data.contact?.email || ""}
                   onChange={(e) => handleContactChange('email', e.target.value)}
                   onBlur={(e) => setErrors((p) => ({ ...p, contact: { ...p.contact, email: validateEmail(e.target.value) } }))}
@@ -365,7 +365,7 @@ export default function Editor() {
                 <div key={i} className="border rounded p-2 mb-2 bg-white dark:bg-slate-700">
                   <input
                     placeholder="Role"
-                    className="w-full border p-1 rounded"
+                    className="w-full border p-1 rounded dark:bg-slate-800"
                     value={exp.role}
                     onChange={(e) =>
                       setData((d) => {
@@ -377,7 +377,7 @@ export default function Editor() {
                   />
                   <input
                     placeholder="Company"
-                    className="w-full border p-1 rounded mt-1"
+                    className="w-full border p-1 rounded mt-1 dark:bg-slate-800"
                     value={exp.company}
                     onChange={(e) =>
                       setData((d) => {
@@ -389,7 +389,7 @@ export default function Editor() {
                   />
                   <textarea
                     placeholder="Details"
-                    className="w-full border p-1 rounded mt-1"
+                    className="w-full border p-1 rounded mt-1 dark:bg-slate-800"
                     value={exp.details}
                     onChange={(e) =>
                       setData((d) => {
@@ -423,19 +423,19 @@ export default function Editor() {
                 <div key={i} className="border rounded p-2 mb-2 bg-white dark:bg-slate-700">
                   <input
                     placeholder="School"
-                    className="w-full border p-1 rounded"
+                    className="w-full border p-1 rounded dark:bg-slate-800"
                     value={edu.school || ""}
                     onChange={(e) => handleEducationChange(e, i, "school")}
                   />
                   <input
                     placeholder="Degree"
-                    className="w-full border p-1 rounded mt-1"
+                    className="w-full border p-1 rounded mt-1 dark:bg-slate-800"
                     value={edu.degree || ""}
                     onChange={(e) => handleEducationChange(e, i, "degree")}
                   />
                   <input
                     placeholder="Year"
-                    className="w-full border p-1 rounded mt-1"
+                    className="w-full border p-1 rounded mt-1 dark:bg-slate-800"
                     value={edu.year || ""}
                     onChange={(e) => handleEducationChange(e, i, "year")}
                   />
