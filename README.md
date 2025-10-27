@@ -1,57 +1,43 @@
 # resume.ly
 
-Simple Next.js + Tailwind starter for a resume builder app.
+Resume builder made with Next.js and Tailwind CSS.
 
-Getting started
-
-1. Install dependencies
+## Setup
 
 ```bash
 npm install
-```
-
-2. Run dev server
-
-```bash
 npm run dev
 ```
 
 Open http://localhost:3000
 
-What's included
+## Features
 
-- Basic editor UI at `/pages/index.js`
-- Preview component in `/components/TemplatePreview.js`
-- Client-side PDF export using `html2canvas` + `jspdf` in `/components/ExportPDFButton.js`
-- Tailwind CSS configuration and global styles
+- Live preview as you edit
+- Multiple resume templates (Classic, Modern, Minimal, Creative)
+- Dark mode support
+- PDF export (client-side using html-to-image + jspdf)
+- Customization options (colors, fonts, section ordering)
+- Auto-saves to localStorage
 
-Try it
+## Structure
 
-1. Install dependencies
+- `/pages/index.js` - Main editor page
+- `/templates/` - Resume template components
+- `/components/` - UI components
+- `/lib/exportPdf.js` - PDF generation logic
 
-```bash
-npm install
-```
+## Deploy
 
-2. Run development server
+Works on Vercel out of the box. Just connect your repo.
 
-```bash
-npm run dev
-```
+## TODO
 
-3. Open http://localhost:3000 and try editing the sample resume. Click "Download PDF" to export.
-
-Deployment
-
-This project is ready to be deployed on Vercel. Push to a GitHub repo and import the project in Vercel — it will detect Next.js and build automatically.
-
-Next steps
-
-- Add structured form fields for lists (experience/education) with add/remove
-- Add multiple templates in `/templates` and template selector
-- Server-side PDF rendering with Puppeteer for higher fidelity
-- Authentication (NextAuth) and user resume saving
+- Add more templates
+- Better mobile layout
+- Maybe add auth + backend storage?
+- Export to JSON/import feature
 
 ## License
 
-MIT (change as needed)
+MIT

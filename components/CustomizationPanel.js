@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 export default function CustomizationPanel({ customization, onChange }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
   const colorPresets = [
     { name: 'Classic Gray', value: '#1f2937' },
     { name: 'Blue', value: '#2563eb' },
@@ -50,7 +49,6 @@ export default function CustomizationPanel({ customization, onChange }) {
       
       {isExpanded && (
         <div className="p-4 border-t space-y-4">
-          {/* Font Size */}
           <div>
             <label className="block text-sm font-medium mb-2">Font Size</label>
             <div className="flex gap-2">
@@ -70,7 +68,6 @@ export default function CustomizationPanel({ customization, onChange }) {
             </div>
           </div>
 
-          {/* Color Presets */}
           <div>
             <label className="block text-sm font-medium mb-2">Primary Color</label>
             <div className="grid grid-cols-4 gap-2 mb-2">
@@ -89,7 +86,6 @@ export default function CustomizationPanel({ customization, onChange }) {
                 />
               ))}
             </div>
-            {/* Custom Color Picker */}
             <div className="flex items-center gap-2">
               <input
                 type="color"
@@ -108,7 +104,6 @@ export default function CustomizationPanel({ customization, onChange }) {
             </div>
           </div>
 
-          {/* Section Order */}
           <div>
             <label className="block text-sm font-medium mb-2">Section Order</label>
             <div className="space-y-2">

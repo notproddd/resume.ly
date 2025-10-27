@@ -9,6 +9,11 @@ export default function CreativeTemplate({ data, customization = {} }) {
   
   const sizes = fontSizes[fontSize];
   
+  // quick util to get lighter bg colors
+  const getLightBg = (color) => {
+    return color + '15'; // works with 6-digit hex
+  };
+  
   const sections = {
     summary: (
       <div className="mb-6" key="summary">
@@ -17,14 +22,14 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-black dark:text-white">About Me</span>
+            <span>About Me</span>
         </div>
         <div 
           className="p-4 rounded-lg" 
           style={{ 
             fontSize: sizes.base, 
             lineHeight: '1.7',
-            backgroundColor: `${primaryColor}15`,
+            backgroundColor: getLightBg(primaryColor),
             borderLeft: `4px solid ${primaryColor}`
           }}
         >
@@ -39,14 +44,14 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-black dark:text-white">Experience</span>
+            <span>Experience</span>
         </div>
         <div className="space-y-4">
           {(data.experience || []).map((e, i) => (
             <div 
               key={i} 
               className="pl-4 relative"
-              style={{ borderLeft: `2px solid ${primaryColor}30` }}
+              style={{ borderLeft: `2px solid ${primaryColor}40` }}
             >
               <div 
                 className="absolute left-0 w-2 h-2 rounded-full -translate-x-1/2"
@@ -70,7 +75,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-black dark:text-white">Education</span>
+            <span>Education</span>
         </div>
         <div className="space-y-3">
           {(data.education || []).map((ed, i) => (
@@ -79,7 +84,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
               className="p-3 rounded-lg"
               style={{ 
                 fontSize: sizes.base,
-                backgroundColor: `${primaryColor}08`,
+                backgroundColor: getLightBg(primaryColor),
                 borderLeft: `3px solid ${primaryColor}`
               }}
             >
@@ -98,7 +103,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
           style={{ fontSize: sizes.subheading, borderBottom: `3px solid ${primaryColor}` }}
         >
             <span style={{ color: primaryColor }}>●</span>
-            <span className="text-black dark:text-white">Skills</span>
+            <span>Skills</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {(data.skills || []).map((skill, i) => (
@@ -107,7 +112,7 @@ export default function CreativeTemplate({ data, customization = {} }) {
               className="px-3 py-1 rounded-full font-medium"
               style={{ 
                 fontSize: sizes.base,
-                backgroundColor: `${primaryColor}20`,
+                backgroundColor: primaryColor + '30',
                 color: primaryColor
               }}
             >
@@ -124,16 +129,16 @@ export default function CreativeTemplate({ data, customization = {} }) {
     : Object.values(sections);
 
   return (
-    <div style={{ fontFamily: 'Inter, system-ui, -apple-system', color: '#fff' }}>
+    <div className="text-black dark:text-white" style={{ fontFamily: 'Inter, system-ui, -apple-system' }}>
       <div 
         className="mb-6 p-6 rounded-lg"
         style={{ 
-          background: `linear-gradient(135deg, ${primaryColor}20 0%, ${primaryColor}05 100%)`
+          background: `linear-gradient(135deg, ${primaryColor}20 0%, ${getLightBg(primaryColor)} 100%)`
         }}
       >
         <div 
           className="font-bold mb-1" 
-          style={{ fontSize: sizes.heading, color: '#000' }}
+          style={{ fontSize: sizes.heading }}
         >
           {data.contact?.name}
         </div>

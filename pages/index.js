@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import useResumeHistory from "../hooks/useResumeHistory";
 import ClassicTemplate from "../templates/ClassicTemplate";
 import ModernTemplate from "../templates/ModernTemplate";
 import MinimalTemplate from "../templates/MinimalTemplate";
@@ -46,9 +47,7 @@ const sample = {
 };
 
 export default function Editor() {
-  // Use safe defaults on initial render (avoid accessing window/localStorage
-  // during server-side rendering). Load persisted values on mount.
-  const [data, setData] = useState(sample);
+  const [data, setData, { undo, redo, canUndo, canRedo, replace }] = useResumeHistory(sample, 20);
   const [templateId, setTemplateId] = useState("classic");
   const [customization, setCustomization] = useState({
     fontSize: 'medium',
@@ -67,18 +66,42 @@ export default function Editor() {
   ];
   const [activeSection, setActiveSection] = useState("contact");
 
+  // Intentionally run only on mount — the setData reference comes from our history hook.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const id = setTimeout(() => {
       try {
         localStorage.setItem("resume:data", JSON.stringify(data))
-      } catch (e) {
-        // ignore
-      }
+      } catch (e) {}
     }, 300)
     return () => clearTimeout(id)
   }, [data]);
 
-  // Load persisted state on mount (client only)
+  // Keyboard shortcuts for undo/redo (Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z)
+  useEffect(() => {
+    function onKey(e) {
+      const key = (e.key || '').toLowerCase();
+      const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform);
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+      if (!cmdOrCtrl) return;
+
+      if (!e.shiftKey && key === 'z') {
+        e.preventDefault();
+        if (canUndo) undo();
+      }
+
+      if (e.shiftKey && key === 'z') {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    }
+
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo, canUndo, canRedo]);
+
+  // Intentionally run only on mount — setData (from hook) intentionally omitted from deps.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     try {
       const saved = localStorage.getItem("resume:data");
@@ -100,14 +123,13 @@ export default function Editor() {
       if (savedDark !== null) setDark(savedDark === "true");
       else if (window.matchMedia) setDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
     } catch (e) {}
-  }, [])
+  }, [setData])
 
   useEffect(() => {
     try {
       localStorage.setItem("resume:dark", dark ? "true" : "false");
     } catch (e) {}
 
-    // Ensure class toggle happens in the browser
     if (typeof document !== 'undefined') {
       document.documentElement.classList.toggle("dark", !!dark);
     }
@@ -129,7 +151,6 @@ export default function Editor() {
 
   function validateEmail(value) {
     if (!value) return "Email is required";
-    // simple email regex
     const re = /^\S+@\S+\.\S+$/;
     return re.test(value) ? "" : "Enter a valid email address";
   }
@@ -168,7 +189,6 @@ export default function Editor() {
     }
   }
 
-  // --- Experience Handlers ---
   function addExperience() {
     setData((d) => ({
       ...d,
@@ -186,7 +206,6 @@ export default function Editor() {
     }));
   }
 
-  // --- Education Handlers ---
   function addEducation() {
     setData((d) => ({
       ...d,
@@ -209,7 +228,6 @@ export default function Editor() {
     });
   }
 
-  // --- Skills Handler ---
   function handleSkillsChange(e) {
     const skillsArray = e.target.value
       .split(",")
@@ -239,6 +257,24 @@ export default function Editor() {
 
           <div className="flex items-center gap-3">
             <button
+              onClick={() => { if (canUndo) undo(); }}
+              disabled={!canUndo}
+              className="px-3 py-2 border rounded bg-white dark:bg-slate-800 disabled:opacity-50"
+              title="Undo (Cmd/Ctrl+Z)"
+            >
+              Undo
+            </button>
+
+            <button
+              onClick={() => { if (canRedo) redo(); }}
+              disabled={!canRedo}
+              className="px-3 py-2 border rounded bg-white dark:bg-slate-800 disabled:opacity-50"
+              title="Redo (Shift+Cmd/Ctrl+Z)"
+            >
+              Redo
+            </button>
+
+            <button
               onClick={() =>
                 exportElementToPdf(
                   previewRef.current,
@@ -252,13 +288,13 @@ export default function Editor() {
 
             <button
               onClick={() => {
-                // Clear persisted data and template selection, then reset to sample
                 try {
                   localStorage.removeItem("resume:data");
                   localStorage.removeItem("resume:templateId");
                   localStorage.removeItem("resume:customization");
                 } catch (e) {}
-                setData(sample);
+                // replace without adding to history
+                replace(sample);
                 setCustomization({ fontSize: 'medium', primaryColor: '#1f2937', sectionOrder: [] });
                 setTemplateId('classic');
               }}
@@ -301,7 +337,7 @@ export default function Editor() {
                   <p className="text-xs text-gray-500 dark:text-slate-300">{computeProgress()}% complete</p>
                 </div>
                 <div>
-                  <button onClick={() => { setData(sample); setErrors({contact:{}}); }} className="text-xs text-gray-500">Load sample</button>
+                  <button onClick={() => { replace(sample); setErrors({contact:{}}); }} className="text-xs text-gray-500">Load sample</button>
                 </div>
               </div>
               <div className="h-2 bg-gray-200 dark:bg-slate-700">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+// sample resume for previewing templates
 const sampleData = {
   contact: { name: 'John Doe', email: 'john@email.com', phone: '555-0100', title: 'Software Engineer' },
   summary: 'Experienced developer with passion for creating elegant solutions.',
@@ -38,21 +39,20 @@ export default function TemplateSelector({ templates, selectedId, onSelect, cust
                       : 'border-gray-200 dark:border-slate-600 hover:border-gray-400'
                   }`}
                 >
-                  {/* Preview Thumbnail */}
+                  {/* mini preview - scaled down version of actual template */}
                   <div 
                     className="bg-white p-3 overflow-hidden"
                     style={{ 
                       height: '180px',
                       transform: 'scale(0.35)',
                       transformOrigin: 'top left',
-                      width: '285%',
+                      width: '285%', // wider to fit scaled content
                       pointerEvents: 'none'
                     }}
                   >
                     <Template data={sampleData} customization={customization} />
                   </div>
 
-                  {/* Overlay with template name */}
                   <div 
                     className={`absolute inset-0 flex items-center justify-center transition-opacity ${
                       isSelected ? 'bg-blue-600 bg-opacity-20' : 'bg-black bg-opacity-0 group-hover:bg-opacity-30'
@@ -67,7 +67,6 @@ export default function TemplateSelector({ templates, selectedId, onSelect, cust
                     </div>
                   </div>
 
-                  {/* Selected indicator */}
                   {isSelected && (
                     <div className="absolute top-2 right-2 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
                       ✓
