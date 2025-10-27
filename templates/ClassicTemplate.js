@@ -1,6 +1,5 @@
 export default function ClassicTemplate({ data, customization = {} }) {
   const { fontSize = 'medium', primaryColor = '#1f2937', sectionOrder = [] } = customization;
-  
   const fontSizes = {
     small: { base: '0.75rem', heading: '1.25rem', subheading: '0.75rem' },
     medium: { base: '0.875rem', heading: '1.5rem', subheading: '0.875rem' },
