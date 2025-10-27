@@ -6,7 +6,7 @@ import CreativeTemplate from "../templates/CreativeTemplate";
 import CustomizationPanel from "../components/CustomizationPanel";
 import TemplateSelector from "../components/TemplateSelector";
 import { exportElementToPdf } from "../lib/exportPdf";
-
+import { exportAsWord } from "../lib/exportWord";
 const TEMPLATES = [
   { id: "classic", name: "Classic", Component: ClassicTemplate },
   { id: "modern", name: "Modern", Component: ModernTemplate },
@@ -46,8 +46,6 @@ const sample = {
 };
 
 export default function Editor() {
-  // Use safe defaults on initial render (avoid accessing window/localStorage
-  // during server-side rendering). Load persisted values on mount.
   const [data, setData] = useState(sample);
   const [templateId, setTemplateId] = useState("classic");
   const [customization, setCustomization] = useState({
@@ -58,14 +56,19 @@ export default function Editor() {
   const [dark, setDark] = useState(false);
   const [errors, setErrors] = useState({ contact: {} });
   const previewRef = useRef(null);
-  const sections = [
-    { id: "contact", label: "Contact" },
-    { id: "summary", label: "Summary" },
-    { id: "experience", label: "Experience" },
-    { id: "education", label: "Education" },
-    { id: "skills", label: "Skills" },
-  ];
-  const [activeSection, setActiveSection] = useState("contact");
+  const [showImportMenu, setShowImportMenu] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("resume:data");
+      if (saved) {
+        setData(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Failed to loead resume data:", e);
+    }
+  }, []);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -127,45 +130,23 @@ export default function Editor() {
 
   const Template = TEMPLATES.find((t) => t.id === templateId).Component;
 
-  function validateEmail(value) {
-    if (!value) return "Email is required";
-    // simple email regex
-    const re = /^\S+@\S+\.\S+$/;
-    return re.test(value) ? "" : "Enter a valid email address";
-  }
+  // ---- IMPORT JSON FILE ----
+  function handleFileImport(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  function validateName(value) {
-    return value && value.trim().length > 1 ? "" : "Name is required";
-  }
-
-  function handleContactChange(field, value) {
-    setData((d) => ({ ...d, contact: { ...d.contact, [field]: value } }));
-    setErrors((prev) => ({
-      ...prev,
-      contact: {
-        ...prev.contact,
-        [field]: field === "email" ? validateEmail(value) : field === "name" ? validateName(value) : "",
-      },
-    }));
-  }
-
-  function computeProgress() {
-    let total = 5;
-    let done = 0;
-    if (data.contact?.name && !validateName(data.contact?.name)) done++;
-    if (data.contact?.email && !validateEmail(data.contact?.email)) done++;
-    if (data.summary && data.summary.trim().length > 10) done++;
-    if ((data.experience || []).length > 0) done++;
-    if (((data.skills || []).length || 0) > 0) done++;
-    return Math.round((done / total) * 100);
-  }
-
-  function scrollToSection(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActiveSection(id);
-    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        setData(imported);
+        alert("Resume imported successfully!");
+      } catch (e) {
+        alert("Failed to import: Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   }
 
   // --- Experience Handlers ---
@@ -238,6 +219,61 @@ export default function Editor() {
           </div>
 
           <div className="flex items-center gap-3">
+            <label className="sr-only">Select template</label>
+            <select
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value)}
+              className="border rounded px-3 py-2 bg-white dark:bg-slate-800"
+              aria-label="Choose template"
+            >
+              {TEMPLATES.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+
+            {/* Import Menu */}
+            <div className="relative">
+              <button
+                onClick={() => setShowImportMenu(!showImportMenu)}
+                className="flex items-center gap-2 px-4 py-2 border rounded hover:bg-gray-100"
+              >
+                Import
+              </button>
+              {showImportMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10">
+                  <button
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                      setShowImportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    Upload JSON
+                  </button>
+                  <button
+                    onClick={() => {
+                      alert(
+                        "LinkedIn import coming soon! For now, use JSON export from LinkedIn profile exporters."
+                      );
+                      setShowImportMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2"
+                  >
+                    From LinkedIn
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleFileImport}
+              className="hidden"
+            />
             <button
               onClick={() =>
                 exportElementToPdf(
@@ -248,6 +284,13 @@ export default function Editor() {
               className="bg-blue-600 text-white px-4 py-2 rounded"
             >
               Download PDF
+            </button>
+
+            <button
+              onClick={()=>exportAsWord(data,templateId)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Export Word
             </button>
 
             <button
