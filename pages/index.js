@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import useResumeHistory from "../hooks/useResumeHistory";
+import { downloadJson, validateResumeJson } from "../lib/jsonImportExport";
 import ClassicTemplate from "../templates/ClassicTemplate";
 import ModernTemplate from "../templates/ModernTemplate";
 import MinimalTemplate from "../templates/MinimalTemplate";
@@ -48,6 +49,7 @@ const sample = {
 
 export default function Editor() {
   const [data, setData, { undo, redo, canUndo, canRedo, replace }] = useResumeHistory(sample, 20);
+  const fileInputRef = useRef(null);
   const [templateId, setTemplateId] = useState("classic");
   const [customization, setCustomization] = useState({
     fontSize: 'medium',
@@ -284,6 +286,53 @@ export default function Editor() {
               className="bg-blue-600 text-white px-4 py-2 rounded"
             >
               Download PDF
+            </button>
+
+            <button
+              onClick={() => downloadJson(data, `${(data.contact?.name || 'resume').replace(/\s+/g,'_')}.json`)}
+              className="bg-green-600 text-white px-3 py-2 rounded"
+              title="Export resume as JSON"
+            >
+              Export JSON
+            </button>
+
+            <input
+              type="file"
+              accept="application/json"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const f = e.target.files && e.target.files[0];
+                if (!f) return;
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                  try {
+                    const parsed = JSON.parse(ev.target.result);
+                    const { valid, error } = validateResumeJson(parsed);
+                    if (!valid) {
+                      alert('Invalid resume JSON: ' + error);
+                      return;
+                    }
+                    // replace state without adding to history
+                    replace(parsed);
+                    setErrors({ contact: {} });
+                    alert('Resume imported successfully');
+                  } catch (err) {
+                    alert('Failed to parse JSON: ' + (err.message || err));
+                  }
+                };
+                reader.readAsText(f);
+                // reset so the same file can be selected again if needed
+                e.target.value = '';
+              }}
+              className="hidden"
+            />
+
+            <button
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              className="px-3 py-2 border rounded bg-white dark:bg-slate-800"
+              title="Import resume from JSON"
+            >
+              Import JSON
             </button>
 
             <button
