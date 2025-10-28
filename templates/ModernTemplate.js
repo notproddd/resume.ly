@@ -1,13 +1,8 @@
+import { FONT_SIZES } from '../lib/constants';
+
 export default function ModernTemplate({ data, customization = {} }) {
   const { fontSize = 'medium', primaryColor = '#2563eb', sectionOrder = [] } = customization;
-  
-  const fontSizes = {
-    small: { base: '0.75rem', heading: '1.25rem', subheading: '0.75rem' },
-    medium: { base: '0.875rem', heading: '1.5rem', subheading: '0.875rem' },
-    large: { base: '1rem', heading: '1.75rem', subheading: '1rem' }
-  };
-  
-  const sizes = fontSizes[fontSize];
+  const sizes = FONT_SIZES[fontSize];
   // just append opacity to hex for bg
   const bgColor = primaryColor + '14';
   

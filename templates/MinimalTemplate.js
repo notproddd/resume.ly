@@ -1,13 +1,8 @@
+import { FONT_SIZES } from '../lib/constants';
+
 export default function MinimalTemplate({ data, customization = {} }) {
   const { fontSize = 'medium', primaryColor = '#000000', sectionOrder = [] } = customization;
-  
-  const fontSizes = {
-    small: { base: '0.75rem', heading: '1.25rem', subheading: '0.875rem' },
-    medium: { base: '0.875rem', heading: '1.5rem', subheading: '1rem' },
-    large: { base: '1rem', heading: '1.75rem', subheading: '1.125rem' }
-  };
-  
-  const sizes = fontSizes[fontSize];
+  const sizes = FONT_SIZES[fontSize];
   
   const sections = {
     summary: (
