@@ -1,13 +1,8 @@
+import { FONT_SIZES } from '../lib/constants';
+
 export default function CreativeTemplate({ data, customization = {} }) {
   const { fontSize = 'medium', primaryColor = '#6366f1', sectionOrder = [] } = customization;
-  
-  const fontSizes = {
-    small: { base: '0.75rem', heading: '1.5rem', subheading: '0.875rem' },
-    medium: { base: '0.875rem', heading: '1.875rem', subheading: '1rem' },
-    large: { base: '1rem', heading: '2.25rem', subheading: '1.125rem' }
-  };
-  
-  const sizes = fontSizes[fontSize];
+  const sizes = FONT_SIZES[fontSize];
   
   // quick util to get lighter bg colors
   const getLightBg = (color) => {
