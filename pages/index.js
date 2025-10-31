@@ -57,6 +57,8 @@ export default function Editor() {
     sectionOrder: []
   });
   const [dark, setDark] = useState(false);
+  // whether we've finished hydrating state from localStorage
+  const [hydrated, setHydrated] = useState(false);
   const [errors, setErrors] = useState({ contact: {} });
   const previewRef = useRef(null);
   const sections = [
@@ -68,16 +70,19 @@ export default function Editor() {
   ];
   const [activeSection, setActiveSection] = useState("contact");
 
-  // Intentionally run only on mount — the setData reference comes from our history hook.
+  // Auto-save data changes to localStorage after hydration completes.
+  // The setData reference comes from our history hook and is stable.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    if (!hydrated) return; // prevent autosave before initial load
+
     const id = setTimeout(() => {
       try {
         localStorage.setItem("resume:data", JSON.stringify(data))
       } catch (e) {}
     }, 300)
     return () => clearTimeout(id)
-  }, [data]);
+  }, [data, hydrated]);
 
   // Keyboard shortcuts for undo/redo (Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z)
   useEffect(() => {
@@ -103,6 +108,7 @@ export default function Editor() {
   }, [undo, redo, canUndo, canRedo]);
 
   // Intentionally run only on mount — setData (from hook) intentionally omitted from deps.
+  // After loading values from localStorage, mark `hydrated` so autosave can run.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     try {
@@ -125,6 +131,9 @@ export default function Editor() {
       if (savedDark !== null) setDark(savedDark === "true");
       else if (window.matchMedia) setDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
     } catch (e) {}
+
+    // mark hydration complete so other effects (like autosave) can run safely
+    setHydrated(true);
   }, [setData])
 
   useEffect(() => {
