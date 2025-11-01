@@ -277,12 +277,16 @@ export default function Editor() {
             </button>
 
             <button
-              onClick={() =>
-                exportElementToPdf(
-                  previewRef.current,
-                  `${(data.contact?.name || "resume").replace(/\s+/g, "_")}.pdf`
-                )
-              }
+              onClick={async () => {
+                try {
+                  await exportElementToPdf(
+                    previewRef.current,
+                    `${(data.contact?.name || "resume").replace(/\s+/g, "_")}.pdf`
+                  );
+                } catch (error) {
+                  alert('Failed to export PDF: ' + (error.message || error));
+                }
+              }}
               className="bg-blue-600 text-white px-4 py-2 rounded"
             >
               Download PDF
